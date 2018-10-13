@@ -1,0 +1,7 @@
+{
+	"user": "IllidanS4",
+	"repo": "i_quat",
+	"dependencies": [
+		"sampctl/samp-stdlib"
+	]
+} 
