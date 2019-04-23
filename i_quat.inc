@@ -110,7 +110,7 @@ stock GetVehicleRotation(vehicleid, &Float:x, &Float:y, &Float:z)
 }
 
 //Converts a vector in coordinates relative to a body with rotation specified by a quaternion to a vector in absolute coordinates
-stock VectorRelToAbsQuat(Float:q[4], Float:v1[3], Float:v2[3])
+stock VectorRelToAbsQuat(const Float:q[4], const Float:v1[3], Float:v2[3])
 {
     new Float:q2[4];
     GetQuatConjugate(q, q2);
@@ -118,7 +118,7 @@ stock VectorRelToAbsQuat(Float:q[4], Float:v1[3], Float:v2[3])
 }
 
 //Converts an Euler rotation relative to a body with rotation specified by a quaternion to an absolute rotation
-stock RotationRelToAbsQuat(Float:q[4], Float:r1[3], Float:r2[3])
+stock RotationRelToAbsQuat(const Float:q[4], const Float:r1[3], Float:r2[3])
 {
     new Float:rq[4];
     GetRotationQuaternion(r1[0], r1[1], r1[2], rq[0], rq[1], rq[2], rq[3]);
@@ -127,7 +127,7 @@ stock RotationRelToAbsQuat(Float:q[4], Float:r1[3], Float:r2[3])
 }
 
 //Converts a quaternion rotation relative to a body with rotation specified by a quaternion to an absolute rotation
-stock QuaternionRelToAbsQuat(Float:q[4], Float:q1[4], Float:q2[4])
+stock QuaternionRelToAbsQuat(const Float:q[4], const Float:q1[4], Float:q2[4])
 {
     GetQuatProduct(q1, q, q2);
 }
@@ -157,13 +157,13 @@ stock QuaternionRelToAbs(Float:r[3], Float:q1[4], Float:q2[4])
 }
 
 //Converts a vector in absolute coordinates to a vector in coordinates relative to a body with rotation specified by a quaternion
-stock VectorAbsToRelQuat(Float:q[4], Float:v1[3], Float:v2[3])
+stock VectorAbsToRelQuat(const Float:q[4], const Float:v1[3], Float:v2[3])
 {
     RotateVectorQuat(v1, q, v2);
 }
 
 //Converts an Euler rotation to a rotation relative to a body with rotation specified by a quaternion
-stock RotationAbsToRelQuat(Float:q[4], Float:r1[3], Float:r2[3])
+stock RotationAbsToRelQuat(const Float:q[4], const Float:r1[3], Float:r2[3])
 {
     new Float:rq[4];
     GetRotationQuaternion(r1[0], r1[1], r1[2], rq[0], rq[1], rq[2], rq[3]);
@@ -172,7 +172,7 @@ stock RotationAbsToRelQuat(Float:q[4], Float:r1[3], Float:r2[3])
 }
 
 //Converts an absolute quaternion rotation to a rotation relative to a body with rotation specified by Euler angles
-stock QuaternionAbsToRelQuat(Float:q[4], Float:q1[4], Float:q2[4])
+stock QuaternionAbsToRelQuat(const Float:q[4], const Float:q1[4], Float:q2[4])
 {
     new Float:qi[4];
     GetQuatConjugate(q, qi);
@@ -204,7 +204,7 @@ stock QuaternionAbsToRel(Float:r[3], Float:q1[4], Float:q2[4])
 }
 
 //Checks if a quaternion is a valid rotation quaternion
-stock IsValidQuaternion(Float:q[4])
+stock IsValidQuaternion(const Float:q[4])
 {
     for(new i = 0; i < sizeof q; i++)
     {
@@ -304,7 +304,7 @@ stock GetQuaternionAngle(Float:w, &Float:a)
 }
 
 //Rotates a vector with a specified quaternion performing a conjugation v2 = q v1 q*
-stock RotateVectorQuat(Float:v1[3], Float:q[4], Float:v2[3])
+stock RotateVectorQuat(const Float:v1[3], const Float:q[4], Float:v2[3])
 {
     new Float:q1[4], Float:q2[4];
     q1 = q;
@@ -316,7 +316,7 @@ stock RotateVectorQuat(Float:v1[3], Float:q[4], Float:v2[3])
 }
 
 //Returns a conjugate of a quaternion, with all non-real components inversed
-stock GetQuatConjugate(Float:q1[4], Float:q2[4])
+stock GetQuatConjugate(const Float:q1[4], Float:q2[4])
 {
     q2[0] =  q1[0];
     q2[1] = -q1[1];
@@ -333,7 +333,7 @@ stock GetQuatInverse(Float:q1[4], Float:q2[4])
 }
 
 //Returns a Hamilton product of two quaternions
-stock GetQuatProduct(Float:q1[4], Float:q2[4], Float:q3[4])
+stock GetQuatProduct(const Float:q1[4], const Float:q2[4], Float:q3[4])
 {
     new Float:w = q1[0]*q2[0] - q1[1]*q2[1] - q1[2]*q2[2] - q1[3]*q2[3];
     new Float:x = q1[0]*q2[1] + q1[1]*q2[0] + q1[2]*q2[3] - q1[3]*q2[2];
