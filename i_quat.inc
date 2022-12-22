@@ -1,4 +1,4 @@
-/** i_quat v1.4 by IllidanS4 **/
+/** i_quat v1.5 by IllidanS4 **/
 
 /*
 native GetVehicleRotationQuatFixed(vehicleid, &Float:w, &Float:x, &Float:y, &Float:z);
@@ -79,23 +79,60 @@ native GetQuatProduct(Float:q1[4], Float:q2[4], Float:q3[4]);
 #if defined GetVehicleMatrix //has to be supplied by YSF or other plugin
 static stock near_zero(Float:val)
 {
-    return Float:(_:val & 0x7FFFFFFF) <= Float:0x1F800000;
+    return (_:val & 0x7FFFFFFF) <= 0x1F800000;
+}
+
+static stock is_bad(Float:val)
+{
+    return (_:val & 0x7FFFFFFF) > 0x3F800000;
 }
 
 stock GetVehicleRotationQuatFixed(vehicleid, &Float:w, &Float:x, &Float:y, &Float:z)
 {
-    new Float:matrix[3][3];
-    GetVehicleMatrix(vehicleid, matrix[0][0], matrix[0][1], matrix[0][2], matrix[1][0], matrix[1][1], matrix[1][2], matrix[2][0], matrix[2][1], matrix[2][2]);
-    if(near_zero(matrix[2][0]) && near_zero(matrix[2][1]) && near_zero(matrix[2][2]))
+    goto after_init;
+    new Float:m_[3*3];
+after_init:
+    #define m[%1][%2] m_[(%1)*3+(%2)]
+    GetVehicleMatrix(vehicleid, m[0][0], m[0][1], m[0][2], m[1][0], m[1][1], m[1][2], m[2][0], m[2][1], m[2][2]);
+    if((near_zero(m[2][0]) && near_zero(m[2][1]) && near_zero(m[2][2])) || is_bad(m[2][0]) || is_bad(m[2][1]) || is_bad(m[2][2]))
     {
-        matrix[2][0] = matrix[0][1]*matrix[1][2]-matrix[0][2]*matrix[1][1];
-        matrix[2][1] = matrix[0][2]*matrix[1][0]-matrix[0][0]*matrix[1][2];
-        matrix[2][2] = matrix[0][0]*matrix[1][1]-matrix[0][1]*matrix[1][0];
+        m[2][0] = m[0][1] * m[1][2] - m[0][2] * m[1][1];
+        m[2][1] = m[0][2] * m[1][0] - m[0][0] * m[1][2];
+        m[2][2] = m[0][0] * m[1][1] - m[0][1] * m[1][0];
     }
-    w = floatsqroot(1 + matrix[0][0] + matrix[1][1] + matrix[2][2])/2;
-    x = (matrix[2][1] - matrix[1][2])/(4*w);
-    y = (matrix[0][2] - matrix[2][0])/(4*w);
-    z = (matrix[1][0] - matrix[0][1])/(4*w);
+    if(_:m[2][2] < 0)
+    {
+        if(_:m[0][0] > _:m[1][1])
+        {
+            x = floatsqroot(1.0 + m[0][0] - m[1][1] - m[2][2]) * 0.5;
+            new Float:t = 0.25 / x;
+            y = (m[1][0] + m[0][1]) * t;
+            z = (m[0][2] + m[2][0]) * t;
+            w = (m[2][1] - m[1][2]) * t;
+        }else{
+            y = floatsqroot(1.0 - m[0][0] + m[1][1] - m[2][2]) * 0.5;
+            new Float:t = 0.25 / y;
+            x = (m[1][0] + m[0][1]) * t;
+            z = (m[2][1] + m[1][2]) * t;
+            w = (m[0][2] - m[2][0]) * t;
+        }
+    }else{
+        if(_:m[0][0] < _:m[1][1] ^ 0x80000000)
+        {
+            z = floatsqroot(1.0 - m[0][0] - m[1][1] + m[2][2]) * 0.5;
+            new Float:t = 0.25 / z;
+            x = (m[0][2] + m[2][0]) * t;
+            y = (m[2][1] + m[1][2]) * t;
+            w = (m[1][0] - m[0][1]) * t;
+        }else{
+            w = floatsqroot(1.0 + m[0][0] + m[1][1] + m[2][2]) * 0.5;
+            new Float:t = 0.25 / w;
+            x = (m[2][1] - m[1][2]) * t;
+            y = (m[0][2] - m[2][0]) * t;
+            z = (m[1][0] - m[0][1]) * t;
+        }
+    }
+    #undef m
 }
 #else
 #define GetVehicleRotationQuatFixed GetVehicleRotationQuat
