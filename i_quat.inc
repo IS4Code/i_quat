@@ -138,6 +138,7 @@ after_init:
 #define GetVehicleRotationQuatFixed GetVehicleRotationQuat
 #endif
 
+#if !defined GetVehicleRotation
 //Returns a vehicle's rotation in Euler angles
 stock GetVehicleRotation(vehicleid, &Float:x, &Float:y, &Float:z)
 {
@@ -145,6 +146,7 @@ stock GetVehicleRotation(vehicleid, &Float:x, &Float:y, &Float:z)
     GetVehicleRotationQuatFixed(vehicleid, qw, qx, qy, qz);
     GetQuaternionAngles(qw, qx, qy, qz, x, y, z);
 }
+#endif
 
 //Converts a vector in coordinates relative to a body with rotation specified by a quaternion to a vector in absolute coordinates
 stock VectorRelToAbsQuat(const Float:q[4], const Float:v1[3], Float:v2[3])
